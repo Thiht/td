@@ -19,7 +19,7 @@
 readonly TODOLIST="$HOME/.todolist"
 readonly TODO="☐ "
 readonly DONE="☑ "
-readonly USAGE="Usage: $1 COMMAND [arg...]
+readonly USAGE="Usage: $0 COMMAND [arg...]
 
 Commands:
   todo
@@ -76,6 +76,6 @@ case "$1" in
 		td_"$1" "${@:2}"
 		;;
 	*)
-		td_help $0
+		td_help
 		;;
 esac
