@@ -41,18 +41,22 @@ die() {
 	exit 1
 }
 
+list_tasks() {
+	grep -n "$1" "$TODOLIST" | awk -F: '{print $1 " " $2}'
+}
+
 list_todo() {
-	grep "^$TODO" "$TODOLIST"
+	list_tasks "^$TODO"
 }
 
 list_done() {
-	grep "^$DONE" "$TODOLIST"
+	list_tasks "^$DONE"
 }
 
 td_todo() {
 	if [ -z "$*" ]
 	then
-		list_todo | nl
+		list_todo
 	else
 		echo "$TODO" "$*" >> "$TODOLIST"
 	fi
@@ -61,7 +65,7 @@ td_todo() {
 td_done() {
 	if [ -z "$*" ]
 	then
-		list_done | nl
+		list_done
 	else
 		# Reverse sort the task numbers
 		tasks=$(
@@ -76,7 +80,7 @@ td_done() {
 			# If $task is numeric
 			if [ "$task" -eq "$task" ] 2> /dev/null
 			then
-				printf "%s\n" "$(list_todo | sed "${task}s/$TODO/$DONE/")" "$(list_done)" > "$TODOLIST"
+				sed -i "${task}s/$TODO/$DONE/" "$TODOLIST"
 			fi
 		done
 	fi
