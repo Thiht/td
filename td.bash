@@ -23,15 +23,15 @@ readonly USAGE="Usage: $0 COMMAND [arg...]
 
 Commands:
   todo
-	display the list of todo items
+    display the list of todo items
   todo DESCRIPTION
-	create a todo item
+    create a todo item
   done
-	display the list of done items
-  done TASKNUMBER
-	mark a todo item as done
+    display the list of done items
+  done TASKNUMBER...
+    mark a todo item as done
   help
-	display this help message"
+    display this help message"
 
 # Make sure the file exists before doing anything
 touch "$TODOLIST"
@@ -50,7 +50,8 @@ list_done() {
 }
 
 td_todo() {
-	if [ -z "$*" ]; then
+	if [ -z "$*" ]
+	then
 		list_todo | nl
 	else
 		echo "$TODO" "$*" >> "$TODOLIST"
@@ -58,12 +59,26 @@ td_todo() {
 }
 
 td_done() {
-	if [ -z "$*" ]; then
+	if [ -z "$*" ]
+	then
 		list_done | nl
-	elif ! [ "$1" -eq "$1" ] 2> /dev/null; then
-		die "Please provide the number of the task to mark as done"
 	else
-		printf "%s\n" "$(list_todo | sed "$1s/$TODO/$DONE/")" "$(list_done)" > "$TODOLIST"
+		# Reverse sort the task numbers
+		tasks=$(
+			# Do this in a subshell to preserve IFS
+			# This allows `sort` to split on spaces
+			IFS=$'\n \t'
+			echo "$*" | sort -nr
+		)
+
+		for task in $tasks
+		do
+			# If $task is numeric
+			if [ "$task" -eq "$task" ] 2> /dev/null
+			then
+				printf "%s\n" "$(list_todo | sed "${task}s/$TODO/$DONE/")" "$(list_done)" > "$TODOLIST"
+			fi
+		done
 	fi
 }
 
