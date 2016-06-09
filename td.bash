@@ -42,7 +42,7 @@ die() {
 }
 
 list_tasks() {
-	grep -n "$1" "$TODOLIST" | awk -F: '{print $1 " " $2}'
+	grep -n "$1" "$TODOLIST"
 }
 
 list_todo() {
