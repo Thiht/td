@@ -37,7 +37,7 @@ Commands:
 touch "$TODOLIST"
 
 die() {
-	echo "$@" 1>&2
+	echo -e "$@" 1>&2
 	exit 1
 }
 
@@ -54,47 +54,43 @@ list_done() {
 }
 
 td_todo() {
-	if [ -z "$*" ]
-	then
+	if [ -z "$*" ]; then
 		list_todo
 	else
-		echo "$TODO" "$*" >> "$TODOLIST"
+		local task=${*//[$'\r\n']} # Remove the line breaks
+		echo "$TODO" "$task" >> "$TODOLIST"
 	fi
 }
 
 td_done() {
-	if [ -z "$*" ]
-	then
+	if [ -z "$*" ]; then
 		list_done
 	else
 		# Reverse sort the task numbers
-		tasks=$(
+		local tasks=$(
 			# Do this in a subshell to preserve IFS
 			# This allows `sort` to split on spaces
 			IFS=$'\n \t'
 			echo "$*" | sort -nr
 		)
 
-		for task in $tasks
-		do
+		for task in $tasks; do
 			# If $task is numeric
-			if [ "$task" -eq "$task" ] 2> /dev/null
-			then
+			if [ "$task" -eq "$task" ] 2> /dev/null; then
 				sed -i "${task}s/$TODO/$DONE/" "$TODOLIST"
 			fi
 		done
 	fi
 }
 
-td_help() {
-	echo "$USAGE"
-}
-
 case "$1" in
-	todo|done)
+	"todo"|"done")
 		td_"$1" "${@:2}"
 		;;
+	"help")
+		echo "$USAGE"
+		;;
 	*)
-		td_help
+		die "Unknown command: $1\n$USAGE"
 		;;
 esac
